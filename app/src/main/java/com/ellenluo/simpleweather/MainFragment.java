@@ -6,6 +6,9 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.DividerItemDecoration;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,18 +20,19 @@ import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 public class MainFragment extends Fragment {
 
-    Typeface tfWeatherIcons;
+    public Typeface tfWeatherIcons;
 
-    TextView tvCityCurrent;
-    TextView tvTemperatureCurrent;
-    TextView tvIconCurrent;
-    TextView tvDetailsCurrent;
-    TextView tvLastUpdate;
-    TextView tvConditionsCurrent;
+    private TextView tvCityCurrent;
+    private TextView tvTemperatureCurrent;
+    private TextView tvIconCurrent;
+    private TextView tvDetailsCurrent;
+    private TextView tvLastUpdate;
+    private TextView tvConditionsCurrent;
+
+    RecyclerView rvForecast;
 
     Handler handler;
 
@@ -46,6 +50,9 @@ public class MainFragment extends Fragment {
         tvDetailsCurrent = (TextView) v.findViewById(R.id.details_current);
         tvLastUpdate = (TextView) v.findViewById(R.id.updated);
         tvConditionsCurrent = (TextView) v.findViewById(R.id.conditions_current);
+        rvForecast = (RecyclerView) v.findViewById(R.id.forecast_list);
+
+        setUpForecast();
 
         return v;
     }
@@ -59,11 +66,19 @@ public class MainFragment extends Fragment {
         updateWeatherData(pref.getString("city", "Berkeley, US"));
     }
 
+    private void setUpForecast() {
+        rvForecast.setHasFixedSize(true);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        rvForecast.setLayoutManager(layoutManager);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rvForecast.getContext(), DividerItemDecoration.VERTICAL);
+        rvForecast.addItemDecoration(dividerItemDecoration);
+    }
+
     private void updateWeatherData(final String city) {
         new Thread() {
             public void run() {
-                final JSONObject json = RemoteFetch.getJSON(getActivity(), city);
-                if (json == null) {
+                final JSONObject current = RemoteFetch.getJSON(getActivity(), city, false);
+                if (current == null) {
                     handler.post(new Runnable() {
                         public void run() {
                             Toast.makeText(getActivity(), getActivity().getString(R.string.place_not_found), Toast.LENGTH_LONG).show();
@@ -72,7 +87,23 @@ public class MainFragment extends Fragment {
                 } else {
                     handler.post(new Runnable() {
                         public void run() {
-                            updateCurrentWeather(json);
+                            updateCurrentWeather(current);
+                        }
+                    });
+                }
+
+                final JSONObject forecast = RemoteFetch.getJSON(getActivity(), city, true);
+                if (forecast == null) {
+                    handler.post(new Runnable() {
+                        public void run() {
+                            Toast.makeText(getActivity(), getActivity().getString(R.string.place_not_found), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                } else {
+                    handler.post(new Runnable() {
+                        public void run() {
+                            RecyclerView.Adapter listAdapter = new ForecastAdapter(forecast);
+                            rvForecast.setAdapter(listAdapter);
                         }
                     });
                 }
@@ -87,7 +118,7 @@ public class MainFragment extends Fragment {
 
             tvCityCurrent.setText(json.getString("name") + ", " + json.getJSONObject("sys").getString("country"));
             tvConditionsCurrent.setText(details.getString("description").toUpperCase());
-            tvDetailsCurrent.setText("Humidity: " + main.getString("humidity") + "%" + "\n" + "Pressure: " + main.getString("pressure") + " hPa");
+            tvDetailsCurrent.setText("Humidity: " + main.getString("humidity") + "%" + "\n" + "Pressure: " + main.getString("pressure") + " hPa" + "\n" + "Wind Speed: " + json.getJSONObject("wind").getString("speed") + " m/s");
             tvTemperatureCurrent.setText(Math.round(main.getDouble("temp")) + "℃");
 
             DateFormat df = DateFormat.getDateTimeInstance();
