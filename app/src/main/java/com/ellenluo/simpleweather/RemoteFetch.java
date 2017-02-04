@@ -10,7 +10,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class FetchData {
+public class RemoteFetch {
 
     private static final String OPEN_WEATHER_MAP_API = "http://api.openweathermap.org/data/2.5/weather?q=%s&units=metric";
 
@@ -34,12 +34,12 @@ public class FetchData {
             JSONObject data = new JSONObject(json.toString());
 
             if(data.getInt("cod") != 200){
-                Log.d("FetchData", "unsuccessful");
+                Log.d("RemoteFetch", "unsuccessful");
                 return null;
             }
             return data;
         } catch(Exception e) {
-            Log.d("FetchData", "unsuccessful");
+            Log.d("RemoteFetch", "unsuccessful");
             return null;
         }
     }
