@@ -88,7 +88,7 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHolder> {
      */
     @Override
     public int getItemCount() {
-        return 40;
+        return 38;
     }
 
     /**
