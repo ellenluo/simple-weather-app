@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/activity_vertical_margin">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:text="@string/change_units"
+        android:textColor="@android:color/black"
+        android:textSize="18sp" />
+
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/change_units_temperature"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/imperial"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/imperial" />
+
+        <RadioButton
+            android:id="@+id/metric"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/metric" />
+
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/change_units_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/save_changes" />
+
+    <Button
+        android:id="@+id/change_units_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/change_location_cancel" />
+
+</LinearLayout>

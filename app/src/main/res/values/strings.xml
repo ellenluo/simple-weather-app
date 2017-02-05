@@ -11,10 +11,24 @@
     <string name="weather_snowy">&#xf01b;</string>
     <string name="weather_thunder">&#xf01e;</string>
     <string name="weather_drizzle">&#xf01c;</string>
-    <string name="place_not_found">Sorry, no weather data found.</string>
 
     <!-- Static text -->
     <string name="city_text">Displaying weather for</string>
     <string name="current_conditions">Current conditions:</string>
     <string name="forecast">5-day forecast:</string>
+    <string name="change_location">Change Location</string>
+    <string name="change_location_zip">Search by ZIP</string>
+    <string name="change_location_enter_zip">Enter ZIP code</string>
+    <string name="change_location_gps">Automatically detect location</string>
+    <string name="change_location_cancel">Cancel</string>
+    <string name="refresh">Refresh Data</string>
+    <string name="change_units">Change Units</string>
+    <string name="imperial">Imperial</string>
+    <string name="metric">Metric</string>
+    <string name="save_changes">Save Changes</string>
+
+    <!-- Error messages -->
+    <string name="location_permission_error">You must accept the location services permission to automatically find location.</string>
+    <string name="location_error">Location Settings are off so your location was not automatically detected.</string>
+    <string name="weather_data_error">Sorry, no weather data found.</string>
 </resources>

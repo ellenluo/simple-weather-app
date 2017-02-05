@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,23 +19,27 @@ import android.widget.Toast;
 
 import org.json.JSONObject;
 
-import java.text.DateFormat;
+
 import java.util.Date;
 
 public class MainFragment extends Fragment {
 
-    public Typeface tfWeatherIcons;
+    private Typeface tfWeatherIcons;
 
     private TextView tvCityCurrent;
     private TextView tvTemperatureCurrent;
     private TextView tvIconCurrent;
     private TextView tvDetailsCurrent;
-    private TextView tvLastUpdate;
     private TextView tvConditionsCurrent;
 
-    RecyclerView rvForecast;
+    private RecyclerView rvForecast;
 
-    Handler handler;
+    private Handler handler;
+
+    private SharedPreferences pref;
+
+    private String unitTemp;
+    private String unitWind;
 
     public MainFragment() {
         handler = new Handler();
@@ -48,7 +53,6 @@ public class MainFragment extends Fragment {
         tvTemperatureCurrent = (TextView) v.findViewById(R.id.temperature_current);
         tvIconCurrent = (TextView) v.findViewById(R.id.icon_current);
         tvDetailsCurrent = (TextView) v.findViewById(R.id.details_current);
-        tvLastUpdate = (TextView) v.findViewById(R.id.updated);
         tvConditionsCurrent = (TextView) v.findViewById(R.id.conditions_current);
         rvForecast = (RecyclerView) v.findViewById(R.id.forecast_list);
 
@@ -62,8 +66,23 @@ public class MainFragment extends Fragment {
         super.onCreate(savedInstanceState);
         tfWeatherIcons = Typeface.createFromAsset(getActivity().getAssets(), "fonts/weathericons.ttf");
 
-        SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
-        updateWeatherData(pref.getString("city", "Berkeley, US"));
+        pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        getUnits();
+
+        if (pref.getBoolean("using_lat", false)) {
+            updateWeatherData(0, pref.getFloat("lat", 0), pref.getFloat("lon", 0), true, pref.getBoolean("metric", false));
+        } else {
+            updateWeatherData(pref.getInt("zip", 94720), 0, 0, false, pref.getBoolean("metric", false));
+        }
+    }
+
+    private void getUnits() {
+        if (pref.getBoolean("metric", false)) {
+            unitWind = "m/s";
+        } else {
+            unitWind = "mph";
+        }
     }
 
     private void setUpForecast() {
@@ -74,14 +93,23 @@ public class MainFragment extends Fragment {
         rvForecast.addItemDecoration(dividerItemDecoration);
     }
 
-    private void updateWeatherData(final String city) {
+    public void updateWeatherData(final int zipCode, final float lat, final float lon, final boolean usingLat, final boolean metric) {
         new Thread() {
             public void run() {
-                final JSONObject current = RemoteFetch.getJSON(getActivity(), city, false);
+                final JSONObject current;
+
+                if (usingLat) {
+                    Log.d("MainFragment", "using lat");
+                    current = RemoteFetch.getJSON(getActivity(), lat, lon, false, metric);
+                } else {
+                    Log.d("MainFragment", "using zip");
+                    current = RemoteFetch.getJSON(getActivity(), zipCode, false, metric);
+                }
+
                 if (current == null) {
                     handler.post(new Runnable() {
                         public void run() {
-                            Toast.makeText(getActivity(), getActivity().getString(R.string.place_not_found), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getActivity(), getActivity().getString(R.string.weather_data_error), Toast.LENGTH_LONG).show();
                         }
                     });
                 } else {
@@ -92,11 +120,11 @@ public class MainFragment extends Fragment {
                     });
                 }
 
-                final JSONObject forecast = RemoteFetch.getJSON(getActivity(), city, true);
+                final JSONObject forecast = RemoteFetch.getJSON(getActivity(), zipCode, true, metric);
                 if (forecast == null) {
                     handler.post(new Runnable() {
                         public void run() {
-                            Toast.makeText(getActivity(), getActivity().getString(R.string.place_not_found), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getActivity(), getActivity().getString(R.string.weather_data_error), Toast.LENGTH_LONG).show();
                         }
                     });
                 } else {
@@ -118,12 +146,8 @@ public class MainFragment extends Fragment {
 
             tvCityCurrent.setText(json.getString("name") + ", " + json.getJSONObject("sys").getString("country"));
             tvConditionsCurrent.setText(details.getString("description").toUpperCase());
-            tvDetailsCurrent.setText("Humidity: " + main.getString("humidity") + "%" + "\n" + "Pressure: " + main.getString("pressure") + " hPa" + "\n" + "Wind Speed: " + json.getJSONObject("wind").getString("speed") + " m/s");
-            tvTemperatureCurrent.setText(Math.round(main.getDouble("temp")) + "℃");
-
-            DateFormat df = DateFormat.getDateTimeInstance();
-            String updatedOn = df.format(new Date(json.getLong("dt") * 1000));
-            tvLastUpdate.setText("Last update: " + updatedOn);
+            tvDetailsCurrent.setText("Humidity: " + main.getString("humidity") + "%" + "\n" + "Pressure: " + main.getString("pressure") + " hPa" + "\n" + "Wind Speed: " + json.getJSONObject("wind").getString("speed") + " " + unitWind);
+            tvTemperatureCurrent.setText(Math.round(main.getDouble("temp")) + "°");
 
             setWeatherIcon(details.getInt("id"), json.getJSONObject("sys").getLong("sunrise") * 1000, json.getJSONObject("sys").getLong("sunset") * 1000);
         } catch (Exception e) {
@@ -163,7 +187,6 @@ public class MainFragment extends Fragment {
                     break;
             }
         }
-        Log.d("MainFragment", "icon is " + icon);
         tvIconCurrent.setTypeface(tfWeatherIcons);
         tvIconCurrent.setText(icon);
     }

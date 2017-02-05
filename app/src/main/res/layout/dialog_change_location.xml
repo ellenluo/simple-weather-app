@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/activity_vertical_margin">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/change_location"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/change_location_zip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/change_location_enter_zip"
+        android:inputType="number"
+        android:maxLines="1" />
+
+    <Button
+        android:id="@+id/change_location_search_zip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/change_location_zip" />
+
+    <Button
+        android:id="@+id/change_location_gps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/change_location_gps" />
+
+    <Button
+        android:id="@+id/change_location_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/change_location_cancel" />
+
+</LinearLayout>

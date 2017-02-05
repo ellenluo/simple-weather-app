@@ -1,6 +1,9 @@
 package com.ellenluo.simpleweather;
 
+import android.app.Activity;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +21,9 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
 
     private JSONObject json;
     private Typeface tfWeatherIcons;
+    private SharedPreferences pref;
+
+    private String unitWind;
 
     // Provide a reference to the views for each data item
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -49,6 +55,8 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
     public ForecastAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.forecast_row, parent, false);
         tfWeatherIcons = Typeface.createFromAsset(parent.getContext().getAssets(), "fonts/weathericons.ttf");
+        pref = PreferenceManager.getDefaultSharedPreferences(parent.getContext());
+        getUnits();
         return new ViewHolder(itemView);
     }
 
@@ -73,12 +81,11 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
             SimpleDateFormat df = new SimpleDateFormat("EEE, MMMM d 'at' h:mm aa", Locale.US);
             String forecastDate = df.format(new Date(current.getLong("dt") * 1000));
             holder.tvDate.setText(forecastDate);
-            Log.d("ForecastAdapter", "date is " + current.getLong("dt") * 1000);
 
             holder.tvConditions.setText(details.getString("description").toUpperCase());
-            holder.tvDetails.setText("Humidity: " + main.getString("humidity") + "%" + "\n" + "Pressure: " + Math.round(main.getDouble("pressure")) + " hPa" + "\n" + "Wind Speed: " + Math.round(current.getJSONObject("wind").getDouble("speed")) + " m/s");
-            holder.tvTemperature.setText(Math.round(main.getDouble("temp")) + "℃");
-            holder.tvMaxMin.setText("Max: " + Math.round(main.getDouble("temp_min")) + " ℃ | Min: " + Math.round(main.getDouble("temp_max")) + " ℃");
+            holder.tvDetails.setText("Humidity: " + main.getString("humidity") + "%" + "\n" + "Pressure: " + Math.round(main.getDouble("pressure")) + " hPa" + "\n" + "Wind Speed: " + current.getJSONObject("wind").getString("speed") + " " + unitWind);
+            holder.tvTemperature.setText(Math.round(main.getDouble("temp")) + "°");
+            holder.tvMaxMin.setText("Max: " + Math.round(main.getDouble("temp_min")) + "° | Min: " + Math.round(main.getDouble("temp_max")) + "°");
 
             setWeatherIcon(holder, details.getInt("id"));
         } catch (Exception e) {
@@ -113,6 +120,14 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
 
         holder.tvIcon.setTypeface(tfWeatherIcons);
         holder.tvIcon.setText(icon);
+    }
+
+    private void getUnits() {
+        if (pref.getBoolean("metric", false)) {
+            unitWind = "m/s";
+        } else {
+            unitWind = "mph";
+        }
     }
 
 }
