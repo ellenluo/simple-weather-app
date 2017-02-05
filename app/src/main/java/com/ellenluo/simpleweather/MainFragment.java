@@ -10,10 +10,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.DividerItemDecoration;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,12 +41,16 @@ public class MainFragment extends Fragment {
 
     private String unitWind;
 
-    /** Initialize handler. */
+    /**
+     * Initializes handler.
+     */
     public MainFragment() {
         handler = new Handler();
     }
 
-    /** Initialize elements. */
+    /**
+     * Initializes elements.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_main, container, false);
@@ -64,7 +67,9 @@ public class MainFragment extends Fragment {
         return v;
     }
 
-    /** Display weather data. */
+    /**
+     * Displays weather data.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,7 +87,9 @@ public class MainFragment extends Fragment {
         }
     }
 
-    /** Sets the appropriate wind speed units. */
+    /**
+     * Sets the appropriate wind speed units.
+     */
     private void getUnits() {
         if (pref.getBoolean("metric", false)) {
             unitWind = "m/s";
@@ -91,7 +98,9 @@ public class MainFragment extends Fragment {
         }
     }
 
-    /** Sets up RecyclerView to display weather forecast. */
+    /**
+     * Sets up RecyclerView to display weather forecast.
+     */
     private void setUpForecast() {
         rvForecast.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
@@ -118,7 +127,7 @@ public class MainFragment extends Fragment {
                 if (current == null) {
                     handler.post(new Runnable() {
                         public void run() {
-                            Toast.makeText(getActivity(), getActivity().getString(R.string.weather_data_error), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getActivity(), getActivity().getString(R.string.error_location), Toast.LENGTH_LONG).show();
                         }
                     });
                 } else {
@@ -129,11 +138,19 @@ public class MainFragment extends Fragment {
                     });
                 }
 
-                final JSONObject forecast = RemoteFetch.getJSON(getActivity(), zipCode, true, metric);
+                // Get forecast
+                final JSONObject forecast;
+
+                if (usingLat) {
+                    forecast = RemoteFetch.getJSON(getActivity(), lat, lon, true, metric);
+                } else {
+                    forecast = RemoteFetch.getJSON(getActivity(), zipCode, true, metric);
+                }
+
                 if (forecast == null) {
                     handler.post(new Runnable() {
                         public void run() {
-                            Toast.makeText(getActivity(), getActivity().getString(R.string.weather_data_error), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getActivity(), getActivity().getString(R.string.error_location), Toast.LENGTH_LONG).show();
                         }
                     });
                 } else {
@@ -148,6 +165,9 @@ public class MainFragment extends Fragment {
         }.start();
     }
 
+    /**
+     * Updates current weather fields.
+     */
     private void updateCurrentWeather(JSONObject json) {
         try {
             JSONObject details = json.getJSONArray("weather").getJSONObject(0);
@@ -155,19 +175,30 @@ public class MainFragment extends Fragment {
 
             tvCityCurrent.setText(json.getString("name") + ", " + json.getJSONObject("sys").getString("country"));
             tvConditionsCurrent.setText(details.getString("description").toUpperCase());
-            tvDetailsCurrent.setText("Humidity: " + main.getString("humidity") + "%" + "\n" + "Pressure: " + main.getString("pressure") + " hPa" + "\n" + "Wind Speed: " + json.getJSONObject("wind").getString("speed") + " " + unitWind);
             tvTemperatureCurrent.setText(Math.round(main.getDouble("temp")) + "°");
 
+            // Set details
+            String humidity = getString(R.string.humidity) + " " + main.getString("humidity") + "%";
+            String pressure = getString(R.string.pressure) + " " + main.getString("pressure") + " hPa";
+            String windSpeed = getString(R.string.wind_speed) + " " + json.getJSONObject("wind").getString("speed") + " " + unitWind;
+            tvDetailsCurrent.setText(humidity + "\n" + pressure + "\n" + windSpeed);
+
+            // Set icon
             setWeatherIcon(details.getInt("id"), json.getJSONObject("sys").getLong("sunrise") * 1000, json.getJSONObject("sys").getLong("sunset") * 1000);
         } catch (Exception e) {
-            Log.e("MainFragment", "Error with json data");
+            // Display error message
+            Toast.makeText(getActivity(), getString(R.string.error_unexpected), Toast.LENGTH_LONG).show();
         }
     }
 
+    /**
+     * Sets appropriate weather icon.
+     */
     private void setWeatherIcon(int actualId, long sunrise, long sunset) {
         int id = actualId / 100;
         String icon = "";
         if (actualId == 800) {
+            // Night/day icons
             long currentTime = new Date().getTime();
             if (currentTime >= sunrise && currentTime < sunset) {
                 icon = getActivity().getString(R.string.weather_sunny);
@@ -175,6 +206,7 @@ public class MainFragment extends Fragment {
                 icon = getActivity().getString(R.string.weather_clear_night);
             }
         } else {
+            // Weather condition icons
             switch (id) {
                 case 2:
                     icon = getActivity().getString(R.string.weather_thunder);
@@ -196,6 +228,8 @@ public class MainFragment extends Fragment {
                     break;
             }
         }
+
+        // Set icon
         tvIconCurrent.setTypeface(tfWeatherIcons);
         tvIconCurrent.setText(icon);
     }

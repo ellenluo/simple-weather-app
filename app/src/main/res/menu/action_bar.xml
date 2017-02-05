@@ -5,7 +5,7 @@
     tools:context="ah.hathi.simpleweather.WeatherActivity">
 
     <item
-        android:id="@+id/change_city"
+        android:id="@+id/change_location"
         android:orderInCategory="1"
         android:title="@string/change_location"
         app:showAsAction="never" />

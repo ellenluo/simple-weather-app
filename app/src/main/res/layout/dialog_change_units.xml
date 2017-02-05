@@ -38,7 +38,7 @@
         android:id="@+id/change_units_save"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/save_changes" />
+        android:text="@string/change_units_save" />
 
     <Button
         android:id="@+id/change_units_cancel"

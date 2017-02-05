@@ -2,11 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:baselineAligned="false"
     android:orientation="horizontal"
     android:padding="@dimen/thin_margin">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical">
@@ -15,9 +16,8 @@
             android:id="@+id/date_forecast"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
             android:textSize="16sp"
-            android:text="Date goes here" />
+            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -31,7 +31,6 @@
                 android:layout_marginEnd="@dimen/thin_margin"
                 android:layout_marginRight="@dimen/thin_margin"
                 android:gravity="center"
-                android:text="&#xf014;"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@color/colorAccent"
                 android:textSize="50sp" />
@@ -48,17 +47,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/thin_margin"
                     android:layout_marginRight="@dimen/thin_margin"
-                    android:text="15 F"
                     android:textColor="@color/colorAccent"
                     android:textSize="30sp" />
 
                 <TextView
                     android:id="@+id/max_min_forecast"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/thin_margin"
-                    android:layout_marginStart="@dimen/thin_margin"
-                    android:text="Max: " />
+                    android:layout_height="wrap_content" />
 
             </LinearLayout>
 
@@ -78,7 +73,6 @@
             android:layout_gravity="end"
             android:layout_marginBottom="@dimen/thin_margin"
             android:gravity="end"
-            android:text="CONDITIONS"
             android:textColor="@color/colorAccent"
             android:textStyle="bold" />
 
@@ -86,8 +80,7 @@
             android:id="@+id/details_forecast"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="end"
-            android:text="Details here" />
+            android:gravity="end" />
 
     </LinearLayout>
 

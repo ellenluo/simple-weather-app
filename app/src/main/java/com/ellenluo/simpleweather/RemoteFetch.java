@@ -1,7 +1,11 @@
 package com.ellenluo.simpleweather;
 
+/**
+ * Fetches JSON data from Open Weather Map.
+ */
+
 import android.content.Context;
-import android.util.Log;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -10,15 +14,17 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class RemoteFetch {
+class RemoteFetch {
 
     private static final String OPEN_WEATHER_CURRENT = "http://api.openweathermap.org/data/2.5/weather?%s&units=%s";
     private static final String OPEN_WEATHER_FORECAST = "http://api.openweathermap.org/data/2.5/forecast?q=%s&units=%s";
     private static final String IMPERIAL = "imperial";
     private static final String METRIC = "metric";
 
-
-    public static JSONObject getJSON(Context context, int zipCode, boolean forecast, boolean metric) {
+    /**
+     * Retrieves weather data from zip code.
+     */
+    static JSONObject getJSON(Context context, int zipCode, boolean forecast, boolean metric) {
         try {
             URL url;
 
@@ -30,12 +36,15 @@ public class RemoteFetch {
 
             return getData(context, url);
         } catch (Exception e) {
-            Log.d("RemoteFetch", "unsuccessful");
+            Toast.makeText(context, context.getString(R.string.error_location), Toast.LENGTH_LONG).show();
             return null;
         }
     }
 
-    public static JSONObject getJSON(Context context, float lat, float lon, boolean forecast, boolean metric) {
+    /**
+     * Retrieves weather data from latitude/longitude.
+     */
+    static JSONObject getJSON(Context context, float lat, float lon, boolean forecast, boolean metric) {
         try {
             URL url;
 
@@ -47,11 +56,14 @@ public class RemoteFetch {
 
             return getData(context, url);
         } catch (Exception e) {
-            Log.d("RemoteFetch", "unsuccessful");
+            Toast.makeText(context, context.getString(R.string.error_location), Toast.LENGTH_LONG).show();
             return null;
         }
     }
 
+    /**
+     * Returns unit type.
+     */
     private static String getUnits(boolean metric) {
         if (metric) {
             return METRIC;
@@ -59,6 +71,9 @@ public class RemoteFetch {
         return IMPERIAL;
     }
 
+    /**
+     * Gets data from Open Weather Map.
+     */
     private static JSONObject getData(Context context, URL url) {
         try {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -66,24 +81,26 @@ public class RemoteFetch {
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
             StringBuilder json = new StringBuilder(1024);
-            String tmp = "";
+            String temp = "";
 
-            while ((tmp = reader.readLine()) != null) {
-                json.append(tmp).append("\n");
+            while ((temp = reader.readLine()) != null) {
+                json.append(temp).append("\n");
             }
 
             reader.close();
 
             JSONObject data = new JSONObject(json.toString());
 
+            // Display error message
             if (data.getInt("cod") != 200) {
-                Log.d("RemoteFetch", "unsuccessful");
+                Toast.makeText(context, context.getString(R.string.error_location), Toast.LENGTH_LONG).show();
                 return null;
             }
 
             return data;
         } catch (Exception e) {
-            Log.d("RemoteFetch", "unsuccessful");
+            // Display error message
+            Toast.makeText(context, context.getString(R.string.error_location), Toast.LENGTH_LONG).show();
             return null;
         }
     }

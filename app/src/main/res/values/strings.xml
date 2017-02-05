@@ -12,27 +12,39 @@
     <string name="weather_thunder">&#xf01e;</string>
     <string name="weather_drizzle">&#xf01c;</string>
 
-    <!-- Static text -->
+    <!-- Main text -->
     <string name="city_text">Displaying weather for</string>
     <string name="current_conditions">Current conditions:</string>
     <string name="forecast">5-day forecast:</string>
+    <string name="refresh">Refresh Data</string>
+
+    <!-- Change location dialog -->
     <string name="change_location">Change Location</string>
     <string name="change_location_zip">Search by ZIP</string>
     <string name="change_location_enter_zip">Enter ZIP code</string>
     <string name="change_location_gps">Automatically detect location</string>
     <string name="change_location_cancel">Cancel</string>
-    <string name="refresh">Refresh Data</string>
+
+    <!-- Change units dialog -->
     <string name="change_units">Change Units</string>
     <string name="imperial">Imperial</string>
     <string name="metric">Metric</string>
-    <string name="save_changes">Save Changes</string>
+    <string name="change_units_save">Save Changes</string>
+
+    <!-- Weather fields -->
+    <string name="humidity">Humidity:</string>
+    <string name="pressure">Pressure:</string>
+    <string name="wind_speed">Wind Speed:</string>
 
     <!-- Error messages -->
-    <string name="location_permission_error">You must accept the location services permission to automatically find location.</string>
-    <string name="location_error">Location Settings are off so your location was not automatically detected.</string>
-    <string name="network_error">Network Unavailable</string>
-    <string name="network_error_details">Network connection is required to update weather information. Please connect to wifi or data.</string>
-    <string name="network_error_update">Network connection is required to update weather information.</string>
+    <string name="error_location_permission">You must accept the location services permission to automatically find location.</string>
+    <string name="error_location_off">Location Settings are off so your location was not automatically detected.</string>
+    <string name="error_no_network">Network Unavailable</string>
+    <string name="error_no_network_details">Network connection is required to update weather information. Please connect to wifi or data.</string>
+    <string name="error_no_network_update">Network connection is required to update weather information.</string>
     <string name="retry">Retry</string>
-    <string name="weather_data_error">Sorry, no weather data found.</string>
+    <string name="error_row_empty">Error retrieving weather</string>
+    <string name="error_location">Error finding location.</string>
+    <string name="error_unexpected">Sorry, an expected error occurred! Please contact the developer to report this bug.</string>
+
 </resources>
