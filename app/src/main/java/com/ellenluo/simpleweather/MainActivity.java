@@ -14,6 +14,8 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
@@ -46,18 +48,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        pref = PreferenceManager.getDefaultSharedPreferences(this);
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !(checkLocationPermission())) {
-            requestLocationPermission();
-        } else {
-            getCurrentLocation();
-        }
-
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().add(R.id.container, new MainFragment()).commit();
-        }
+        checkNetwork();
     }
 
     @Override
@@ -71,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.change_city) {
             showChangeLocationDialog();
         } else if (item.getItemId() == R.id.refresh) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.container, new MainFragment()).commit();
+            refreshData();
         } else {
             showChangeUnitsDialog();
         }
@@ -88,6 +79,19 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, getString(R.string.location_permission_error), Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    private void displayInformation() {
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !(checkLocationPermission())) {
+            requestLocationPermission();
+        } else {
+            getCurrentLocation();
+        }
+
+        getSupportFragmentManager().beginTransaction().add(R.id.container, new MainFragment()).commit();
     }
 
     private boolean isLocationGPSEnabled() {
@@ -180,10 +184,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 int zip = Integer.parseInt(etZip.getText().toString());
 
-                pref.edit().putInt("zip", Integer.parseInt(etZip.getText().toString())).apply();
+                pref.edit().putInt("zip", zip);
                 pref.edit().putBoolean("using_lat", false).apply();
                 dialog.dismiss();
-                getSupportFragmentManager().beginTransaction().replace(R.id.container, new MainFragment()).commit();
+                refreshData();
             }
         });
 
@@ -196,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
                     getCurrentLocation();
                 }
                 dialog.dismiss();
-                getSupportFragmentManager().beginTransaction().replace(R.id.container, new MainFragment()).commit();
+                refreshData();
             }
         });
 
@@ -238,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 dialog.dismiss();
-                getSupportFragmentManager().beginTransaction().replace(R.id.container, new MainFragment()).commit();
+                refreshData();
             }
         });
 
@@ -263,6 +267,45 @@ public class MainActivity extends AppCompatActivity {
         lp.copyFrom(dialog.getWindow().getAttributes());
         lp.width = width;
         dialog.getWindow().setAttributes(lp);
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
+    }
+
+    private void checkNetwork() {
+        if (!isNetworkConnected()) {
+            displayNetworkWarning();
+        } else {
+            displayInformation();
+        }
+    }
+
+    private void refreshData() {
+        if (isNetworkConnected()) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.container, new MainFragment()).commit();
+        } else {
+            Toast.makeText(MainActivity.this, getString(R.string.network_error_update), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void displayNetworkWarning() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+
+        dialog.setTitle(getString(R.string.network_error));
+        dialog.setMessage(getString(R.string.network_error_details));
+        dialog.setCancelable(false);
+
+        dialog.setPositiveButton(getString(R.string.retry), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                checkNetwork();
+            }
+        });
+
+        dialog.show();
     }
 
 }

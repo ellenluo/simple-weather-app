@@ -1,6 +1,9 @@
 package com.ellenluo.simpleweather;
 
-import android.app.Activity;
+/**
+ * Fragment used to display current weather conditions and forecast.
+ */
+
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -18,7 +21,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONObject;
-
 
 import java.util.Date;
 
@@ -38,13 +40,14 @@ public class MainFragment extends Fragment {
 
     private SharedPreferences pref;
 
-    private String unitTemp;
     private String unitWind;
 
+    /** Initialize handler. */
     public MainFragment() {
         handler = new Handler();
     }
 
+    /** Initialize elements. */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_main, container, false);
@@ -61,6 +64,7 @@ public class MainFragment extends Fragment {
         return v;
     }
 
+    /** Display weather data. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,6 +74,7 @@ public class MainFragment extends Fragment {
 
         getUnits();
 
+        // Update weather data with either GPS coordinates or zip code
         if (pref.getBoolean("using_lat", false)) {
             updateWeatherData(0, pref.getFloat("lat", 0), pref.getFloat("lon", 0), true, pref.getBoolean("metric", false));
         } else {
@@ -77,6 +82,7 @@ public class MainFragment extends Fragment {
         }
     }
 
+    /** Sets the appropriate wind speed units. */
     private void getUnits() {
         if (pref.getBoolean("metric", false)) {
             unitWind = "m/s";
@@ -85,24 +91,27 @@ public class MainFragment extends Fragment {
         }
     }
 
+    /** Sets up RecyclerView to display weather forecast. */
     private void setUpForecast() {
         rvForecast.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         rvForecast.setLayoutManager(layoutManager);
+
+        // Dividers between elements
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rvForecast.getContext(), DividerItemDecoration.VERTICAL);
         rvForecast.addItemDecoration(dividerItemDecoration);
     }
 
+    /* Updates weather data asynchronously by fetching JSON from Open Weather Map. */
     public void updateWeatherData(final int zipCode, final float lat, final float lon, final boolean usingLat, final boolean metric) {
         new Thread() {
             public void run() {
+                // Get current conditions
                 final JSONObject current;
 
                 if (usingLat) {
-                    Log.d("MainFragment", "using lat");
                     current = RemoteFetch.getJSON(getActivity(), lat, lon, false, metric);
                 } else {
-                    Log.d("MainFragment", "using zip");
                     current = RemoteFetch.getJSON(getActivity(), zipCode, false, metric);
                 }
 

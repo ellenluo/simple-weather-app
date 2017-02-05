@@ -30,5 +30,9 @@
     <!-- Error messages -->
     <string name="location_permission_error">You must accept the location services permission to automatically find location.</string>
     <string name="location_error">Location Settings are off so your location was not automatically detected.</string>
+    <string name="network_error">Network Unavailable</string>
+    <string name="network_error_details">Network connection is required to update weather information. Please connect to wifi or data.</string>
+    <string name="network_error_update">Network connection is required to update weather information.</string>
+    <string name="retry">Retry</string>
     <string name="weather_data_error">Sorry, no weather data found.</string>
 </resources>
